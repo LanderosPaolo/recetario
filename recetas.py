@@ -1,9 +1,7 @@
 # Importamos os
 import os
-# Importamos Path
-from pathlib import Path
 
-# Lista donde se guardaran las categorias
+# Lista donde se guardaran las categorías
 lista_categoria = []
 # Lista donde se guardaran los archivos
 recetas_en_carpeta = []
@@ -17,7 +15,7 @@ def iniciar_programa():
     directorio_actual = os.path.dirname(__file__)
     # Se agrega el directorio de las recetas
     rutas_recetas = os.path.join(directorio_actual, 'recetas')
-    print(f"\n- Las recetas estan ubicadas en la ruta: {rutas_recetas}")
+    print(f"\n- Las recetas están ubicadas en la ruta: {rutas_recetas}")
     # Contamos la cantidad de carpetas que hay en la ruta gracias a contador_categorias
     contador_categorias = 0
     with os.scandir(rutas_recetas) as carpetas:
@@ -114,7 +112,7 @@ def leer_receta(ruta):
         respuesta_receta = input('Por favor ingresa el nombre del archivo que quieres ver: ')
     # Si la respuesta del usuario coincide con un archivo, le muestra la receta
     if respuesta_receta in recetas_en_carpeta:
-        direccion = Path(carpeta_seleccionada, respuesta_receta)
+        direccion = os.path.join(carpeta_seleccionada, respuesta_receta)
         try:
             archivo = open(direccion, 'r')
             print("*****************")
@@ -191,7 +189,7 @@ def eliminar_receta(ruta):
         respuesta_receta = input('Por favor ingresa el nombre de la receta que quieres borrar: ')
     # Si el archivo existe comienza el proceso de borrado
     if respuesta_receta in recetas_en_carpeta:
-        direccion = Path(carpeta_seleccionada, respuesta_receta)
+        direccion = os.path.join(carpeta_seleccionada, respuesta_receta)
         try:
             os.remove(direccion)
             print("***************************")
@@ -212,7 +210,7 @@ def eliminar_categoria(ruta):
         respuesta_categoria = input("Que categoria te gustaria eliminar?: ")
     # En caso de existir se elimina la categoria
     if respuesta_categoria in lista_categoria:
-        direccion = Path(ruta, respuesta_categoria)
+        direccion = os.path.join(ruta, respuesta_categoria)
         try:
             os.rmdir(direccion)
             print("*****************************")
