@@ -3,7 +3,7 @@ import os
 # Importamos Path
 from pathlib import Path
 
-categoria = []
+lista_categoria = []
 recetas_en_carpeta = []
 
 # Función principal
@@ -53,9 +53,8 @@ tu número: """)
 6.- Finalizar programa
 tu número: """)
     match respuesta_usuario:
-
         case "1":
-            leer_receta(nombre_carpeta, rutas_recetas)
+            leer_receta(rutas_recetas)
         case "2":
             crear_receta(nombre_carpeta, rutas_recetas)
         case "3":
@@ -67,39 +66,55 @@ tu número: """)
         case "6":
             finalizar_programa()
 
-# Función para leer las recetas
-def leer_receta(categorias, ruta):
-    print("Estas son las categorias:")
+def volver_menu():
+    volver = input("Quieres volver al menu principal? si/no ")
+    while volver not in ["si"]:
+        volver = input("Quieres volver al menu principal? si/no ")
+    if volver == "si":
+        os.system("cls")
+
+    iniciar_programa()
+
+def listado_carpetas(ruta):
     with os.scandir(ruta) as categorias:
         for carpeta in categorias:
             if carpeta.is_dir():
                 nombre_carpeta = carpeta.name
-                categoria.append(nombre_carpeta)
+                lista_categoria.append(nombre_carpeta)
                 print(f" - {nombre_carpeta}")
-        respuesta_categoria = input("Que categoria quieres ver?: ").strip().lower()
-        while respuesta_categoria not in categoria:
-            respuesta_categoria = input("Escribe la categoria: ").strip().lower()
-        if respuesta_categoria in categoria:
-            carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
-            with os.scandir(carpeta_seleccionada) as recetas:
-                for receta in recetas:
-                    if receta.is_file():
-                        recetas_en_carpeta.append(receta.name)
-            print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
-            for nombre_receta in recetas_en_carpeta:
-                print(f" - {nombre_receta}")
-        respuesta_receta = input('Ingresa el nombre del archivo que contiene la receta que quieres ver: ')
-        while respuesta_receta not in recetas_en_carpeta:
-            respuesta_receta = input('Por favor ingresa el nombre del archivo que quieres ver: ')
-        if respuesta_receta in recetas_en_carpeta:
-            direccion = Path(carpeta_seleccionada, respuesta_receta)
-            try:
-                archivo = open(direccion, 'r')
-                print("*****************")
-                print("Esta es la receta")
-                print(archivo.read())
-            except:
-                print("No se ha podido cargar el archivo")
+
+def listado_archivo(carpeta_seleccionada):
+    with os.scandir(carpeta_seleccionada) as recetas:
+        for receta in recetas:
+            if receta.is_file():
+                recetas_en_carpeta.append(receta.name)
+
+# Función para leer las recetas
+def leer_receta(ruta):
+    print("Estas son las categorias:")
+    listado_carpetas(ruta)
+    respuesta_categoria = input("Que categoria quieres ver?: ").strip().lower()
+    while respuesta_categoria not in lista_categoria:
+        respuesta_categoria = input("Escribe la categoria: ").strip().lower()
+    if respuesta_categoria in lista_categoria:
+        carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
+        listado_archivo(carpeta_seleccionada)
+        print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
+        for nombre_receta in recetas_en_carpeta:
+            print(f" - {nombre_receta}")
+    respuesta_receta = input('Ingresa el nombre del archivo que contiene la receta que quieres ver: ')
+    while respuesta_receta not in recetas_en_carpeta:
+        respuesta_receta = input('Por favor ingresa el nombre del archivo que quieres ver: ')
+    if respuesta_receta in recetas_en_carpeta:
+        direccion = Path(carpeta_seleccionada, respuesta_receta)
+        try:
+            archivo = open(direccion, 'r')
+            print("*****************")
+            print("Esta es la receta")
+            print(archivo.read())
+        except:
+            print("No se ha podido cargar el archivo")
+    volver_menu()
 
 # Función para crear recetas
 def crear_receta(categorias, ruta):
@@ -108,12 +123,12 @@ def crear_receta(categorias, ruta):
         for carpeta in categorias:
             if carpeta.is_dir():
                 nombre_carpeta = carpeta.name
-                categoria.append(nombre_carpeta)
+                lista_categoria.append(nombre_carpeta)
                 print(f" - {nombre_carpeta}")
         respuesta_categoria = input("Que categoria quieres ver?: ").strip().lower()
-        while respuesta_categoria not in categoria:
+        while respuesta_categoria not in lista_categoria:
             respuesta_categoria = input("Escribe la categoria: ").strip().lower()
-        if respuesta_categoria in categoria:
+        if respuesta_categoria in lista_categoria:
             nombre_receta = input('Que nombre le pondras a la receta?: ')
             extension = ".txt"
             nombre = f"{nombre_receta}{extension}"
@@ -122,9 +137,13 @@ def crear_receta(categorias, ruta):
                 with open(ruta_completa, "w") as archivo:
                     texto = input("Escribe la receta: ")
                     archivo.write(texto)
+                    print("***********************")
                     print("Receta creada con exito")
+                    print("***********************")
             except:
                 print("El archivo no se pudo crear")
+
+    volver_menu()
 
 # Función para crear categoria
 def crear_categoria(ruta):
@@ -133,15 +152,19 @@ def crear_categoria(ruta):
         for carpeta in categorias:
             if carpeta.is_dir():
                 nombre_carpeta = carpeta.name
-                categoria.append(nombre_carpeta)
+                lista_categoria.append(nombre_carpeta)
                 print(f" - {nombre_carpeta}")
     nombre_nueva_categoria = input("Ingresa el nombre de la categoria a crear: ")
     ruta_completa = os.path.join(ruta, nombre_nueva_categoria)
     try:
         os.mkdir(ruta_completa)
+        print("************************")
         print("Carpeta creada con exito")
+        print("************************")
     except:
         print("La carpeta no se pudo crear")
+
+    volver_menu()
 
 # Función para eliminar receta
 def eliminar_receta(categorias, ruta):
@@ -150,12 +173,12 @@ def eliminar_receta(categorias, ruta):
         for carpeta in categorias:
             if carpeta.is_dir():
                 nombre_carpeta = carpeta.name
-                categoria.append(nombre_carpeta)
+                lista_categoria.append(nombre_carpeta)
                 print(f" - {nombre_carpeta}")
         respuesta_categoria = input("Que categoria quieres ver?: ").strip().lower()
-        while respuesta_categoria not in categoria:
+        while respuesta_categoria not in lista_categoria:
             respuesta_categoria = input("Escribe la categoria: ").strip().lower()
-        if respuesta_categoria in categoria:
+        if respuesta_categoria in lista_categoria:
             carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
             with os.scandir(carpeta_seleccionada) as recetas:
                 for receta in recetas:
@@ -171,10 +194,13 @@ def eliminar_receta(categorias, ruta):
             direccion = Path(carpeta_seleccionada, respuesta_receta)
             try:
                 os.remove(direccion)
-                print("*****************")
+                print("***************************")
                 print("Archivo eliminado con exito")
+                print("***************************")
             except:
                 print("No se ha podido eliminar el archivo")
+
+    volver_menu()
 
 # Función para eliminar categoria
 def eliminar_categoria(categorias, ruta):
@@ -183,13 +209,13 @@ def eliminar_categoria(categorias, ruta):
         for carpeta in categorias:
             if carpeta.is_dir():
                 nombre_carpeta = carpeta.name
-                categoria.append(nombre_carpeta)
+                lista_categoria.append(nombre_carpeta)
                 print(f" - {nombre_carpeta}")
     respuesta_categoria = input("Que categoria te gustaria eliminar?: ")
-    while respuesta_categoria not in categoria:
+    while respuesta_categoria not in lista_categoria:
         print("El nombre de la categoria no existe")
         respuesta_categoria = input("Que categoria te gustaria eliminar?: ")
-    if respuesta_categoria in categoria:
+    if respuesta_categoria in lista_categoria:
         direccion = Path(ruta, respuesta_categoria)
         try:
             os.rmdir(direccion)
@@ -198,7 +224,9 @@ def eliminar_categoria(categorias, ruta):
             print("*****************************")
         except:
             print("No se ha podido eliminar la categoría")
-    
+
+    volver_menu()
+
 # Función para finalizar el programa
 def finalizar_programa():
     return print("Muchas gracias por usar el recetario, vuelve luego!")
