@@ -4,6 +4,8 @@ import os
 import sys
 # Importamos shutil
 import shutil
+# Importamos system
+from os import system
 
 # Lista donde se guardaran las categorías
 lista_categoria = []
@@ -84,7 +86,7 @@ Respuesta:
 """).strip().lower()
     if volver == "volver al menu":
         # Para windows, limpia la consola una vez llegado a este punto
-        os.system("cls")
+        system("cls")
         # Se vuelve a iniciar el programa
         iniciar_programa()
     else:
