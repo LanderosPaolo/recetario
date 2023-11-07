@@ -1,5 +1,9 @@
 # Importamos os
 import os
+# Importamos sys
+import sys
+# Importamos shutil
+import shutil
 
 # Lista donde se guardaran las categorías
 lista_categoria = []
@@ -31,7 +35,7 @@ def iniciar_programa():
                         if receta.is_file():
                             contador_recetas += 1
             print(f"- En la carpeta '{nombre_carpeta}', hay '{contador_recetas}' recetas")
-    # Preguntamos al usuario que desea hacer con el programa
+    # Preguntamos al usuario qué desea hacer con el programa
     respuesta_usuario = input("""\n¿Qué quieres hacer?, estas son las opciones:
 *Ingresa solo el número*
 1.- Leer receta
@@ -67,14 +71,24 @@ tu número: """)
 
 # Función que preguntara al usuario si quiere volver al menú principal después de finalizar una acción
 def volver_menu():
-    volver = input("¿Quieres volver al menú principal? si/no ")
-    while volver not in ["si"]:
-        volver = input("¿Quieres volver al menú principal? si/no ")
-    if volver == "si":
+    volver = input("""¿Qué quieres hacer ahora?:
+*Escribe la acción*
+- Volver al menu
+- Finalizar programa
+Respuesta: """).strip().lower()
+    while volver not in ["volver al menu", "finalizar programa"]:
+        volver = input("""
+- Volver al menu
+- Finalizar programa
+Respuesta: 
+""").strip().lower()
+    if volver == "volver al menu":
         # Para windows, limpia la consola una vez llegado a este punto
         os.system("cls")
-    # Se vuelve a iniciar el programa
-    iniciar_programa()
+        # Se vuelve a iniciar el programa
+        iniciar_programa()
+    else:
+        finalizar_programa()
 
 # La función se encargará de listar las carpetas
 def listado_carpetas(ruta):
@@ -94,19 +108,24 @@ def listado_archivo(carpeta_seleccionada):
 
 # Función para leer las recetas
 def leer_receta(ruta):
+    recetas_en_carpeta.clear()
     print("Estas son las categorías:")
     listado_carpetas(ruta)
     respuesta_categoria = input("¿Qué categoría quieres ver?: ").strip().lower()
     while respuesta_categoria not in lista_categoria:
-        respuesta_categoria = input("Escribe la categoría: ").strip().lower()
+        respuesta_categoria = input("Esa categoría no existe, escribe la categoría: ").strip().lower()
     # Si la respuesta del usuario se encuentra en la lista, crea la ruta y llama a la función encargada de mostrar el archivo
     if respuesta_categoria in lista_categoria:
         carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
         listado_archivo(carpeta_seleccionada)
-        print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
-        # Listamos los nombres de las recetas en dicha carpeta
-        for nombre_receta in recetas_en_carpeta:
-            print(f" - {nombre_receta}")
+        if len(recetas_en_carpeta) == 0:
+            print("La carpeta está vacía")
+            volver_menu()
+        else:
+            print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
+            # Listamos los nombres de las recetas en dicha carpeta
+            for nombre_receta in recetas_en_carpeta:
+                print(f" - {nombre_receta}")
     respuesta_receta = input('Ingresa el nombre del archivo que contiene la receta que quieres ver: ')
     while respuesta_receta not in recetas_en_carpeta:
         respuesta_receta = input('Por favor ingresa el nombre del archivo que quieres ver: ')
@@ -129,12 +148,22 @@ def crear_receta(ruta):
     respuesta_categoria = input("¿Qué categoría quieres ver?: ").strip().lower()
     # En caso de que la categoría seleccionada exista, podremos crear una receta dentro de esa carpeta
     while respuesta_categoria not in lista_categoria:
-        respuesta_categoria = input("Escribe la categoría: ").strip().lower()
+        respuesta_categoria = input("Esa categoría no existe, escribe la categoría: ").strip().lower()
     if respuesta_categoria in lista_categoria:
+        carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
+        listado_archivo(carpeta_seleccionada)
+        print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
+        for nombre_receta in recetas_en_carpeta:
+            print(f" - {nombre_receta}")
         nombre_receta = input('¿Qué nombre le pondrás a la receta?: ')
         extension = ".txt"
         # Solo será necesario escribir el nombre, se le agrega automáticamente él .txt
         nombre = f"{nombre_receta}{extension}"
+        while nombre in recetas_en_carpeta:
+            nombre_receta = input('Ese nombre ya existe, inventa otro nombre: ')
+            extension = ".txt"
+            # Solo será necesario escribir el nombre, se le agrega automáticamente él .txt
+            nombre = f"{nombre_receta}{extension}"
         ruta_completa = os.path.join(ruta, respuesta_categoria, nombre)
         try:
             # Abrimos el archivo en modo escritura
@@ -179,14 +208,17 @@ def eliminar_receta(ruta):
     if respuesta_categoria in lista_categoria:
         carpeta_seleccionada = os.path.join(ruta, respuesta_categoria)
         listado_archivo(carpeta_seleccionada)
-        # Mostramos las categorías
-        print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
-        for nombre_receta in recetas_en_carpeta:
-            print(f" - {nombre_receta}")
+        if len(recetas_en_carpeta) == 0:
+            print("La carpeta esta vacia")
+            volver_menu()
+        else:
+            print(f"En la carpeta '{respuesta_categoria}', están las siguientes recetas:")
+            for nombre_receta in recetas_en_carpeta:
+                print(f" - {nombre_receta}")
     respuesta_receta = input('Ingresa el nombre de la receta que deseas borrar: ')
     # En caso de no existir la categoría en el listado entramos al bucle
     while respuesta_receta not in recetas_en_carpeta:
-        respuesta_receta = input('Por favor ingresa el nombre de la receta que quieres borrar: ')
+        respuesta_receta = input('Esa receta no existe, por favor ingresa el nombre de la receta que quieres borrar: ')
     # Si el archivo existe comienza el proceso de borrado
     if respuesta_receta in recetas_en_carpeta:
         direccion = os.path.join(carpeta_seleccionada, respuesta_receta)
@@ -195,6 +227,7 @@ def eliminar_receta(ruta):
             print("***************************")
             print("Archivo eliminado con éxito")
             print("***************************")
+            recetas_en_carpeta.clear()
         except:
             print("No se ha podido eliminar el archivo")
     volver_menu()
@@ -212,7 +245,8 @@ def eliminar_categoria(ruta):
     if respuesta_categoria in lista_categoria:
         direccion = os.path.join(ruta, respuesta_categoria)
         try:
-            os.rmdir(direccion)
+            shutil.rmtree(direccion)
+            lista_categoria.remove(respuesta_categoria)
             print("*****************************")
             print("Categoría eliminada con éxito")
             print("*****************************")
@@ -223,6 +257,7 @@ def eliminar_categoria(ruta):
 # Función para finalizar el programa
 def finalizar_programa():
     # Se le da un aviso al usuario y el programa finaliza
-    return print("¡Muchas gracias por usar el recetario, vuelve luego!")
+    print("¡Muchas gracias por usar el recetario, vuelve luego!")
+    sys.exit()
 
 iniciar_programa()
